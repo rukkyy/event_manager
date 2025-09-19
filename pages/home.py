@@ -1,6 +1,9 @@
 from nicegui import ui
 from components.navbar import show_navbar
 from components.footer import show_footer
+from components.event_card import show_event_card
+import requests
+from utils.api import base_url
 
 
 @ui.page("/")
@@ -26,26 +29,35 @@ def show_home_page():
             )
             ui.label("WHO DO").classes("text-5xl md:text-6xl font-extrabold tracking tight")
 
+#Search Bar
+        with ui.row().classes("-mb-10 bg-blue-600 rounded-xl shadow-lg p-4 w-11/12 md:w-3/4 justify-around space-x-4 z-20 mx-auto"):
+                    ui.select(["Select event type", "Conference", "Workshop", "Concert"], value="Select event type", with_input=True).props("outlined dense").classes("w-1/4 bg-white rounded-lg text-gray-700")
+                    ui.select(["Select location", "On Campus", "Online", "Restaurant"], value="Select location", with_input=True).props("outlined dense").classes("w-1/4 bg-white rounded-lg text-gray-700")
+                    ui.input(label="Choose date and time").props("outlined dense").classes("w-1/4 bg-white rounded-lg text-gray-700")
+                    ui.button(icon="search").classes("bg-purple-600 text-white rounded-sm p-3 hover:bg-indigo-700")
+
 
     # Upcoming events section
-    with ui.row().classes("flex flex-row justify-between w-full items-center mt-16"):
-        with ui.row().classes("items-baseline gap-x-2"):
+    with ui.column().classes("w-full items-center mt-16"):
+        with ui.row().classes("items-baseline gap-x-2 justify-center mb-6"):
              ui.label("Upcoming Events").classes("text-4xl font-bold")
-        with ui.row().classes("flex flex-row justify-center items-center"):
+
+        with ui.row().classes("gap-6 flex-wrap justify-center items-center"):
              weekdays=["Weekdays", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
              ui.select(label="", value="Weekdays", options=weekdays).classes("w-48")
-             event_type=["Event", "Indoor", "Outdoor"]
-             ui.select(label="", value="Event", options=event_type)
-             category=["Category", "All", "Some", "Any", "Nothing", "Something"]
-             ui.select(label="", value="Category", options=category)
 
-    with ui.grid(columns=3).classes("w-full p-8 gap-6"):
-        for i in range(6):
-            with ui.card():
-                ui.image("assets/people.jpeg").classes("w-full h-48 object-cover rounded-lg")
-                ui.label("Best Seller Book bootcamp-write&market books").classes("text-lg font-semibold mt-2")
-                ui.label("Publish your book now ").classes('text-purple-600')
-                #ui.button("View Event").classes("w-full mt-2")
+             event_type=["Event", "Indoor", "Outdoor"]
+             ui.select(label="", value="Event", options=event_type).classes("w-40")
+
+             category=["Category", "All", "Some", "Any", "Nothing", "Something"]
+             ui.select(label="", value="Category", options=category).classes("w-40")
+
+    with ui.grid(columns=3).classes("max-w-6xl mx-auto p-8 gap-8 justify-items-center"):
+        response=requests.get(f"{base_url}/events?limit=6")
+        json_data=response.json()
+        for event in json_data["data"]:
+            show_event_card(event)
+                
     with ui.row().classes("w-full justify-center mt-6"):            
         ui.button("Load more.....",on_click=lambda: ui.navigate.to("/event")).classes("px-8 py-3 !bg-[#5a34c2] text-l font-bold justify-center rounded-full text-white hover:bg-black")
 
@@ -109,20 +121,18 @@ def show_home_page():
 
         ui.button("Load more...").classes("mt-6 !bg-purple-600 text-white px-6 py-2 rounded")
 
-        
-#Blogs 
-    ui.label("Our Blogs").classes("text-3xl ")
-    with ui.grid(columns=3).classes("w-full p-8 gap-6"):
-        for i in range(3):
-            with ui.card():
-                ui.image("assets/blog1.png").classes("w-full h-48 object-cover rounded-lg")
-                ui.label("Best Seller Book bootcamp-write&market books").classes("text-lg font-semibold mt-2")
 
+# Blogs 
+    with ui.column().classes("w-full items-center mt-16"):
+        ui.label("Our Blogs").classes("text-4xl font-bold mb-6 text-purple-700")
 
-
-   
-
-
+        with ui.row().classes("gap-8 flex-wrap justify-center"):
+            for i in range(3):
+                with ui.card().classes("w-80"):
+                    ui.image("assets/blog1.png").classes("w-full h-48 object-cover rounded-lg")
+                    ui.label("Best Seller Book bootcamp-write&market books").classes(
+                        "text-lg font-semibold mt-2"
+                    )
 
 
 
